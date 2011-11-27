@@ -1,6 +1,6 @@
 Name:           javacc-maven-plugin
 Version:        2.6
-Release:        7
+Release:        9
 Summary:        JavaCC Maven Plugin
 
 Group:          Development/Java
