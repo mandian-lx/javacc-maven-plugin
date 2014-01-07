@@ -1,23 +1,24 @@
+%{?_javapackages_macros:%_javapackages_macros}
 Name:           javacc-maven-plugin
 Version:        2.6
-Release:        9
+Release:        15.0%{?dist}
 Summary:        JavaCC Maven Plugin
 
-Group:          Development/Java
+
 License:        ASL 2.0
 URL:            http://mojo.codehaus.org/javacc-maven-plugin/ 
 #svn export http://svn.codehaus.org/mojo/tags/javacc-maven-plugin-2.6
 #tar cjf javacc-maven-plugin-2.6.tar.bz2 javacc-maven-plugin-2.6
 Source0:        javacc-maven-plugin-2.6.tar.bz2
+Source1:        http://www.apache.org/licenses/LICENSE-2.0.txt
 Patch0:         javacc-maven-plugin-pom.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildArch: noarch
 
-BuildRequires: maven2
+BuildRequires: maven-local
 BuildRequires: javacc >= 5.0
 BuildRequires: plexus-utils
-BuildRequires: maven-doxia
+BuildRequires: maven-doxia-sink-api
 BuildRequires: maven-doxia-sitetools
 BuildRequires: maven-compiler-plugin
 BuildRequires: maven-invoker-plugin
@@ -36,14 +37,12 @@ Requires: javacc >= 5.0
 Requires: plexus-utils
 Requires: jpackage-utils
 Requires: mojo-parent
-Requires(post): jpackage-utils
-Requires(postun): jpackage-utils
 
 %description
-Maven 2 Plugin for processing JavaCC grammar files.
+Maven Plugin for processing JavaCC grammar files.
 
 %package javadoc
-Group:          Development/Java
+
 Summary:        Javadoc for %{name}
 Requires:       jpackage-utils
 
@@ -54,56 +53,82 @@ API documentation for %{name}.
 %prep
 %setup -q 
 %patch0 -b .sav
+cp -p %{SOURCE1} .
 
 %build
-export MAVEN_REPO_LOCAL=$(pwd)/.m2/repository
-mvn-jpp \
-        -e \
-        -Dmaven2.jpp.mode=true \
-        -Dmaven.repo.local=$MAVEN_REPO_LOCAL \
-        package javadoc:javadoc
+mvn-rpmbuild package javadoc:javadoc
 
 %install
-rm -rf %{buildroot}
-
 # jars
 install -d -m 0755 %{buildroot}%{_javadir}
-install -m 644 target/%{name}-%{version}.jar   %{buildroot}%{_javadir}/%{name}-%{version}.jar
-
-(cd %{buildroot}%{_javadir} && for jar in *-%{version}*; \
-    do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
-
-%add_to_maven_depmap org.codehaus.mojo javacc-maven-plugin %{version} JPP javacc-maven-plugin
+install -m 644 target/%{name}-%{version}.jar   %{buildroot}%{_javadir}/%{name}.jar
 
 # poms
-install -d -m 755 %{buildroot}%{_datadir}/maven2/poms
-install -pm 644 pom.xml \
-    %{buildroot}%{_datadir}/maven2/poms/JPP-%{name}.pom
+install -d -m 755 %{buildroot}%{_mavenpomdir}
+install -pm 644 pom.xml %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
+
+%add_maven_depmap JPP-%{name}.pom %{name}.jar
+
 
 # javadoc
-install -d -m 0755 %{buildroot}%{_javadocdir}/%{name}-%{version}
-cp -pr target/site/api*/* %{buildroot}%{_javadocdir}/%{name}-%{version}/
-ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name}
-rm -rf target/site/api*
-
-%post
-%update_maven_depmap
-
-%postun
-%update_maven_depmap
-
-%clean
-%{__rm} -rf %{buildroot}
+install -d -m 0755 %{buildroot}%{_javadocdir}/%{name}
+cp -pr target/site/api*/* %{buildroot}%{_javadocdir}/%{name}/
 
 %files
-%defattr(-,root,root,-)
 %{_javadir}/%{name}*
 %{_mavenpomdir}/*
 %{_mavendepmapfragdir}/*
-%doc src/main/resources/NOTICE
+%doc LICENSE-2.0.txt src/main/resources/NOTICE
 
 %files javadoc
-%defattr(-,root,root,-)
-%{_javadocdir}/%{name}-%{version}
 %{_javadocdir}/%{name}
+%doc LICENSE-2.0.txt src/main/resources/NOTICE
 
+%changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6-15
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
+* Fri Feb 08 2013 Michal Srb <msrb@redhat.com> - 2.6-14
+- Migrate from maven-doxia to doxia subpackages (Resolves: #909835)
+
+* Wed Feb 06 2013 Java SIG <java-devel@lists.fedoraproject.org> - 2.6-13
+- Update for https://fedoraproject.org/wiki/Fedora_19_Maven_Rebuild
+- Replace maven BuildRequires with maven-local
+
+* Mon Nov 26 2012 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.6-12
+- Copy LICENSE-2.0.txt to builddir
+
+* Fri Nov 23 2012 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.6-11
+- Install license files
+- Resolves: rhbz#880189
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Thu Nov 24 2011 Alexander Kurtakov <akurtako@redhat.com> 2.6-8
+- Build with maven 3.
+- Adapt to current guidelines.
+
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Mon Dec 6 2010 Orion Poplawski <orion@cora.nwra.com> 2.6-6
+- Require mojo-parent.
+
+* Thu Sep 16 2010 Alexander Kurtakov <akurtako@redhat.com> 2.6-5
+- BR mojo-parent.
+
+* Wed Mar 24 2010 Alexander Kurtakov <akurtako@redhat.com> 2.6-4
+- Fix BRs.
+
+* Wed Mar 24 2010 Alexander Kurtakov <akurtako@redhat.com> 2.6-3
+- Fix plugin metadata build.
+
+* Wed Mar 17 2010 Alexander Kurtakov <akurtako@redhat.com> 2.6-2
+- Fix Requires.
+
+* Mon Mar 15 2010 Alexander Kurtakov <akurtako@redhat.com> 2.6-1
+- Initial package.
