@@ -52,7 +52,7 @@ API documentation for %{name}.
 
 %prep
 %setup -q 
-%patch0 -b .sav
+%patch0
 cp -p %{SOURCE1} .
 
 %build
