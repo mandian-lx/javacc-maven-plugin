@@ -1,9 +1,9 @@
 %{?_javapackages_macros:%_javapackages_macros}
 Name:           javacc-maven-plugin
 Version:        2.6
-Release:        15.0%{?dist}
+Release:        21.1
 Summary:        JavaCC Maven Plugin
-
+Group:		Development/Java
 
 License:        ASL 2.0
 URL:            http://mojo.codehaus.org/javacc-maven-plugin/ 
@@ -42,9 +42,7 @@ Requires: mojo-parent
 Maven Plugin for processing JavaCC grammar files.
 
 %package javadoc
-
 Summary:        Javadoc for %{name}
-Requires:       jpackage-utils
 
 %description javadoc
 API documentation for %{name}.
@@ -56,32 +54,15 @@ API documentation for %{name}.
 cp -p %{SOURCE1} .
 
 %build
-mvn-rpmbuild package javadoc:javadoc
+%mvn_build
 
 %install
-# jars
-install -d -m 0755 %{buildroot}%{_javadir}
-install -m 644 target/%{name}-%{version}.jar   %{buildroot}%{_javadir}/%{name}.jar
+%mvn_install
 
-# poms
-install -d -m 755 %{buildroot}%{_mavenpomdir}
-install -pm 644 pom.xml %{buildroot}%{_mavenpomdir}/JPP-%{name}.pom
-
-%add_maven_depmap JPP-%{name}.pom %{name}.jar
-
-
-# javadoc
-install -d -m 0755 %{buildroot}%{_javadocdir}/%{name}
-cp -pr target/site/api*/* %{buildroot}%{_javadocdir}/%{name}/
-
-%files
-%{_javadir}/%{name}*
-%{_mavenpomdir}/*
-%{_mavendepmapfragdir}/*
+%files -f .mfiles
 %doc LICENSE-2.0.txt src/main/resources/NOTICE
 
-%files javadoc
-%{_javadocdir}/%{name}
+%files javadoc -f .mfiles-javadoc
 %doc LICENSE-2.0.txt src/main/resources/NOTICE
 
 %changelog
