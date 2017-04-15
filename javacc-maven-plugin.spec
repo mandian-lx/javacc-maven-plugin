@@ -1,42 +1,32 @@
 %{?_javapackages_macros:%_javapackages_macros}
 Name:           javacc-maven-plugin
 Version:        2.6
-Release:        21.2
+Release:        23%{?dist}
 Summary:        JavaCC Maven Plugin
-Group:		Development/Java
-
 License:        ASL 2.0
 URL:            http://mojo.codehaus.org/javacc-maven-plugin/ 
+BuildArch:      noarch
+
 #svn export http://svn.codehaus.org/mojo/tags/javacc-maven-plugin-2.6
 #tar cjf javacc-maven-plugin-2.6.tar.bz2 javacc-maven-plugin-2.6
 Source0:        javacc-maven-plugin-2.6.tar.bz2
 Source1:        http://www.apache.org/licenses/LICENSE-2.0.txt
+
 Patch0:         javacc-maven-plugin-pom.patch
 
-BuildArch: noarch
-
-BuildRequires: maven-local
-BuildRequires: javacc >= 5.0
-BuildRequires: plexus-utils
-BuildRequires: maven-doxia-sink-api
-BuildRequires: maven-doxia-sitetools
-BuildRequires: maven-compiler-plugin
-BuildRequires: maven-invoker-plugin
-BuildRequires: maven-jar-plugin
-BuildRequires: maven-javadoc-plugin
-BuildRequires: maven-enforcer-plugin
-BuildRequires: maven-plugin-plugin
-BuildRequires: maven-resources-plugin
-BuildRequires: maven-plugin-cobertura
-BuildRequires: maven-surefire-plugin
-BuildRequires: maven-surefire-provider-junit
-BuildRequires: mojo-parent
-BuildRequires: plexus-containers-component-javadoc
-BuildRequires: junit
-Requires: javacc >= 5.0
-Requires: plexus-utils
-Requires: jpackage-utils
-Requires: mojo-parent
+BuildRequires:  maven-local
+BuildRequires:  mvn(junit:junit)
+BuildRequires:  mvn(net.java.dev.javacc:javacc)
+BuildRequires:  mvn(org.apache.maven.doxia:doxia-sink-api)
+BuildRequires:  mvn(org.apache.maven.doxia:doxia-site-renderer)
+BuildRequires:  mvn(org.apache.maven:maven-model)
+BuildRequires:  mvn(org.apache.maven:maven-plugin-api)
+BuildRequires:  mvn(org.apache.maven:maven-project)
+BuildRequires:  mvn(org.apache.maven.reporting:maven-reporting-api)
+BuildRequires:  mvn(org.apache.maven.reporting:maven-reporting-impl)
+BuildRequires:  mvn(org.codehaus.mojo:mojo-parent:pom:)
+BuildRequires:  mvn(org.codehaus.plexus:plexus-utils)
+BuildRequires:  mvn(org.apache.maven.plugins:maven-plugin-plugin)
 
 %description
 Maven Plugin for processing JavaCC grammar files.
@@ -47,10 +37,9 @@ Summary:        Javadoc for %{name}
 %description javadoc
 API documentation for %{name}.
 
-
 %prep
 %setup -q 
-%patch0
+%patch0 -b .sav
 cp -p %{SOURCE1} .
 
 %build
@@ -66,6 +55,30 @@ cp -p %{SOURCE1} .
 %doc LICENSE-2.0.txt src/main/resources/NOTICE
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.6-23
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Wed Jun 15 2016 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.6-22
+- Add missing build-requires
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.6-21
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
+* Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6-20
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
+* Wed Mar 25 2015 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.6-19
+- Mavenize requires and build-requires
+
+* Mon Jun  9 2014 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.6-18
+- Update to current packaging guidelines
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6-17
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Thu May 29 2014 Mikolaj Izdebski <mizdebsk@redhat.com> - 2.6-16
+- Use .mfiles generated during build
+
 * Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 2.6-15
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
